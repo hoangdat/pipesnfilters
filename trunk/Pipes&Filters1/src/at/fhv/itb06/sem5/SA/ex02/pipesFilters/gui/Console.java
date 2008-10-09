@@ -6,20 +6,19 @@ package at.fhv.itb06.sem5.SA.ex02.pipesFilters.gui;
 import java.io.FileNotFoundException;
 
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.Pipeline;
+import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.LayoutBlock;
+import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.TextBlock;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.ActiveFileReaderFilter;
+import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.ActivePagePrinterFilter;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.AlignCenterFilter;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.AlignLeftFilter;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.AlignRightFilter;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.AlignSpaceFilter;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.LineFilter;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.PageFilter;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.ActivePagePrinterFilter;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.WordFilter;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.Filter;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.IntPipe;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.LayoutBlockPipe;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipe;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.TextBlockPipe;
 
 /**
  *
@@ -40,11 +39,11 @@ public abstract class Console {
 		Align align = Align.CENTER;
 		
 		
-		Pipe intPipe_1 = new IntPipe();
-		Pipe textPipe_1 = new TextBlockPipe();
-		Pipe layoutPipe_2 = new LayoutBlockPipe();
-		Pipe layoutPipe_3 = new LayoutBlockPipe();
-		Pipe layoutPipe_4 = new LayoutBlockPipe();
+		Pipe<Integer> intPipe_1 = new Pipe<Integer>();
+		Pipe<TextBlock> textPipe_1 = new Pipe<TextBlock>();
+		Pipe<LayoutBlock> layoutPipe_2 = new Pipe<LayoutBlock>();
+		Pipe<LayoutBlock> layoutPipe_3 = new Pipe<LayoutBlock>();
+		Pipe<LayoutBlock> layoutPipe_4 = new Pipe<LayoutBlock>();
 		
 		
 		ActiveFileReaderFilter charReaderFilter = new ActiveFileReaderFilter();
