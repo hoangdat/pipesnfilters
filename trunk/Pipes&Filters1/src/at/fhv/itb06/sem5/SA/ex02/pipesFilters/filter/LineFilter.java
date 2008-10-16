@@ -10,31 +10,21 @@ import java.util.List;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.AsciiTable;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.Syllabification;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.AsciiTable.AsciiType;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.LayoutBlock;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.LineLayout;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.TextBlock;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.Word;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.WordBreaker;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PullLayoutBlockFilter;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PullTextBlockFilter;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PushLayoutBlockFilter;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PushTextBlockFilter;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipe;
 
 
 /**
- *
+ * The line filter creates lines of the given textBlock elements.
  * @author AS
  */
-public class LineFilter extends FilterImpl implements PushTextBlockFilter, PullLayoutBlockFilter {
+public class LineFilter extends ActiveFilterImpl<TextBlock, LineLayout> {
 	
-	
-	private PushLayoutBlockFilter m_sink;
-	private PullTextBlockFilter m_source;
 	private int m_maxLength;
 	private List<TextBlock> m_bufferWords;
 	private List<TextBlock> m_sendWords; // the words, which can be sent
-	private List<LineLayout> m_outBuffer; // these words can be sent
 	private int m_curLengthSend; // the send length of the words
 	private int m_curLengthBuffer; // the buffer length of the words
 	private boolean m_isRecursive;
@@ -44,104 +34,36 @@ public class LineFilter extends FilterImpl implements PushTextBlockFilter, PullL
 		setMaxLength(80);
 		m_sendWords = new LinkedList<TextBlock>();
 		m_bufferWords = new LinkedList<TextBlock>();
-		m_outBuffer = new LinkedList<LineLayout>();
 		m_syllabification = Syllabification.getInstance();
 		m_isRecursive = false;
-		m_sink = null;
-		m_source = null;
 	}
 	
 	
 	
-	/* (non-Javadoc)
-	 * @see at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.FilterImpl#setSink(at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipe)
+
+	
+	/**
+	 * @return the maxLength
 	 */
-	@Override
-	public void setSink(Pipe sink) {
-		super.setSink(sink);
-		m_sink = (PushLayoutBlockFilter) sink;
+	public int getMaxLength() {
+		return m_maxLength;
 	}
 
-
-
-	/* (non-Javadoc)
-	 * @see at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.FilterImpl#setSource(at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipe)
+	/**
+	 * @param maxLength the maxLength to set
 	 */
-	@Override
-	public void setSource(Pipe source) {
-		super.setSource(source);
-		m_source = (PullTextBlockFilter) source;
-	}
-
-	/* (non-Javadoc)
-	 * @see asc2606.filter.word.WordPushFilter#write(asc2606.filter.word.Word)
-	 */
-	@Override
-	public void write(TextBlock word) {
-		
-		addTextBlock(word);
-		
-		writeLine();
-	}
-
-
-	/* (non-Javadoc)
-	 * @see at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PullLayoutBlockFilter#read()
-	 */
-	@Override
-	public LayoutBlock read() {
-		if( m_outBuffer.isEmpty() ) {
-			TextBlock text;
-			do {
-				text = m_source.read();
-				if( text != null ) {
-					addTextBlock(text);
-				}
-			} while( m_outBuffer.isEmpty() && text != null );
-			
-			if( text == null ) {
-				flushAll();
-				if( m_outBuffer.isEmpty() ) {
-					return null;
-				}
-			}
-		}
-		
-		LayoutBlock lb = m_outBuffer.iterator().next();
-		m_outBuffer.remove(lb);
-		return lb;
+	public void setMaxLength(int maxLength) {
+		m_maxLength = maxLength;
 	}
 	
 	
-	/* (non-Javadoc)
-	 * @see at.fhv.itb06.sem5.SA.ex02.pipesFilters.Component#flush()
-	 */
 	@Override
-	public void flush() {
-		flushAll();
-		writeLine();
+	protected void addInputValue(TextBlock newValue) {
 		
-		m_sink.flush();
-	}
-	
-	private void flushAll() {
-		// if we reach this line, buffer + send should fit on one line
-		moveBuffer(m_bufferWords.size());
-		createLineAndMoveToOutBuffer(false);
-	}
-
-	private void writeLine() {
-		while( !m_outBuffer.isEmpty() ) {
-			LayoutBlock lb = m_outBuffer.iterator().next();
-			((PushLayoutBlockFilter) m_sink).write(lb);
-			m_outBuffer.remove(lb);
-		}
-	}
-	
-	private void addTextBlock(TextBlock text) {
-		
-		if( text.containsType(AsciiType.NEWLINE) ) {
-			TextBlock[] blocks = text.splitByAsciiType(AsciiType.NEWLINE);
+		// if the given textBlock contains a newline value, we have to handle
+		// this seperatly.
+		if( newValue.containsType(AsciiType.NEWLINE) ) {
+			TextBlock[] blocks = newValue.splitByAsciiType(AsciiType.NEWLINE);
 			for( int i = 0; i < blocks.length; i++ ) {
 				
 				m_curLengthBuffer += blocks[i].getTextLength();
@@ -157,13 +79,23 @@ public class LineFilter extends FilterImpl implements PushTextBlockFilter, PullL
 				
 			}
 		} else {
-			m_bufferWords.add(text);
-			m_curLengthBuffer += text.getTextLength();
+			m_bufferWords.add(newValue);
+			m_curLengthBuffer += newValue.getTextLength();
 			handleBufferAndSend();
 		}
 	}
 	
+	@Override
+	protected void flushInternalToOutBuffer() {
+		// if we reach this line, buffer + send should fit on one line
+		moveBuffer(m_bufferWords.size());
+		createLineAndMoveToOutBuffer(false);
+	}
+	
 
+	
+	
+	
 	/**
 	 * @return Returns whether the buffer/sendWords has changed or not.
 	 * This might be an important information to let the caller decide,
@@ -321,20 +253,6 @@ public class LineFilter extends FilterImpl implements PushTextBlockFilter, PullL
 		}
 	}
 	
-	
-	/**
-	 * @return the maxLength
-	 */
-	public int getMaxLength() {
-		return m_maxLength;
-	}
-
-	/**
-	 * @param maxLength the maxLength to set
-	 */
-	public void setMaxLength(int maxLength) {
-		m_maxLength = maxLength;
-	}
 
 	
 	

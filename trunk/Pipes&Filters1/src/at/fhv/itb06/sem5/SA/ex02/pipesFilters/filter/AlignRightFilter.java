@@ -15,10 +15,8 @@ import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.Word;
  * @author AS
  */
 public class AlignRightFilter extends AlignSpaceFilter {
-
-	/* (non-Javadoc)
-	 * @see at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.AlignSpaceFilter#alignLine(at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.LineLayout)
-	 */
+	
+	
 	@Override
 	protected LineLayout alignLine(LineLayout line) {
 		
@@ -34,6 +32,12 @@ public class AlignRightFilter extends AlignSpaceFilter {
 		return line;
 	}
 	
+	
+	/**
+	 * Creates space characters to align the line on the right side.
+	 * @param spaceLength The count of the spaces.
+	 * @return
+	 */
 	private TextBlock createSpaceLayout(int spaceLength) {
 		StringBuilder s = new StringBuilder();
 		for( int i = 0; i < spaceLength; i++ ) {
