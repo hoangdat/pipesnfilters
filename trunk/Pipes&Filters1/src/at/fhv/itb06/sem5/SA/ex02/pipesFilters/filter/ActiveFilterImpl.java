@@ -14,21 +14,22 @@ public abstract class ActiveFilterImpl<T1 extends DataElement, T2 extends DataEl
 		extends PassiveFilterImpl<T1, T2>
 		implements ActiveFilter {
 	
-	private boolean m_oldReadable = false;
-	private boolean m_oldWriteable = false;
+	private boolean m_isActive;
+	
+	public ActiveFilterImpl() {
+		super();
+		m_isActive = false;
+	}
 	
 	@Override
 	public void run() {
 		T2 curValue = null;
-		m_oldReadable = m_readable;
-		m_oldWriteable = m_writeable;
-		m_readable = false;
-		m_writeable = false;
+		m_isActive = true;
 		
 		
 		// while we can read ourself, send data to sink
 		do {
-			curValue = this.readNext();
+			curValue = super.read();
 			
 			if( curValue != null ) {
 				m_sink.write(curValue);
@@ -39,8 +40,34 @@ public abstract class ActiveFilterImpl<T1 extends DataElement, T2 extends DataEl
 		// flush the sink
 		m_sink.flush();
 		
-		m_readable = m_oldReadable;
-		m_writeable = m_oldWriteable;
+		m_isActive = false;
 	}
 
+	
+	
+	
+	@Override
+	public void flush() {
+		checkRight();
+		super.flush();
+	}
+	
+	@Override
+	public T2 read() {
+		checkRight();
+		return super.read();
+	}
+	
+	@Override
+	public void write(T1 data) {
+		checkRight();
+		super.write(data);
+	}
+
+	protected void checkRight() {
+		if( !m_isActive ) {
+			throw new UnsupportedOperationException("This method is temporary deactivated.");
+		}
+	}
+	
 }

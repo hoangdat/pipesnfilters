@@ -27,17 +27,11 @@ public abstract class PassiveFilterImpl<T1 extends DataElement, T2 extends DataE
 	protected Pipe<T2> m_sink;
 	protected List<T2> m_outBuffer;
 	
-	protected boolean m_readable;
-	protected boolean m_writeable;
-	
 	
 	protected PassiveFilterImpl() {
 		m_source = null;
 		m_sink = null;
 		m_outBuffer = new LinkedList<T2>();
-		
-		m_readable = true;
-		m_writeable = true;
 	}
 	
 	
@@ -75,12 +69,6 @@ public abstract class PassiveFilterImpl<T1 extends DataElement, T2 extends DataE
 	 */
 	@Override
 	public T2 read() {
-		checkRight(m_writeable);
-		
-		return readNext();
-	}
-	
-	protected T2 readNext() {
 		if( m_outBuffer.isEmpty() ) {
 			T1 newValue = null;
 			
@@ -107,13 +95,6 @@ public abstract class PassiveFilterImpl<T1 extends DataElement, T2 extends DataE
 
 	@Override
 	public void write(T1 data) {
-		checkRight(m_writeable);
-	
-		writeNext(data);
-	}
-	
-	public void writeNext(T1 data) {
-		
 		// add the new data to the filter-haendler
 		addInputValue(data);
 		
@@ -123,8 +104,6 @@ public abstract class PassiveFilterImpl<T1 extends DataElement, T2 extends DataE
 	
 	@Override
 	public void flush() {
-		checkRight(m_writeable);
-		
 		// flush all internal caches to the outBuffer
 		flushInternalToOutBuffer();
 		
@@ -133,12 +112,6 @@ public abstract class PassiveFilterImpl<T1 extends DataElement, T2 extends DataE
 		
 		// send the flush event to the sink
 		m_sink.flush();
-	}
-	
-	protected void checkRight(boolean value) {
-		if( !value ) {
-			throw new UnsupportedOperationException("This method is temporary deactivated.");
-		}
 	}
 	
 	
