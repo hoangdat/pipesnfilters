@@ -15,11 +15,9 @@ import at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipe;
 public abstract class PassiveSinkFilterImpl<T extends DataElement> implements PassiveSink<T> {
 
 	protected Pipe<T> m_source;
-	protected boolean m_writeable;
 	
 	public PassiveSinkFilterImpl() {
 		m_source = null;
-		m_writeable = true;
 	}
 	
 	
@@ -36,11 +34,7 @@ public abstract class PassiveSinkFilterImpl<T extends DataElement> implements Pa
 	
 	@Override
 	public void write(T data) {
-		if( m_writeable ) {
-			addInputValue(data);
-		} else {
-			throw new UnsupportedOperationException("Write method is temporarly deactivated.");
-		}
+		addInputValue(data);
 	}
 	
 	
