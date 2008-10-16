@@ -9,16 +9,19 @@ import java.io.FileNotFoundException;
  *
  * @author AS
  */
-public class ConsolePull extends Console {
+public class Console_Source_Sink_Threads extends Console {
 
 	/**
 	 * @param args
 	 * @throws FileNotFoundException 
 	 */
 	public static void main(String[] args) throws FileNotFoundException {
-		Console c = new ConsolePull();
+		Console c = new Console_Source_Sink_Threads();
 		c.initialize();
-		c.doPull().run();
+		
+		c.getPipe(Pipes.LINE_ALIGN).setBuffered(true);
+		(new Thread(c.getFilter(Filters.SINK))).start();
+		(new Thread(c.getFilter(Filters.SOURCE))).start();
 	}
 
 }

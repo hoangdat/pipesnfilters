@@ -8,22 +8,15 @@ import java.util.List;
 
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.AsciiTable;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.AsciiTable.AsciiType;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.TextBlock;
+import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.AsciiCharacter;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.Word;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PullTextBlockFilter;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PushIntFilter;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.IntPipe;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipe;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.TextBlockPipe;
 
 
 /**
  *
  * @author AS
  */
-public class WordFilter extends FilterImpl implements PushIntFilter, PullTextBlockFilter {
-	
-	private static final byte EOS = -1;
+public class WordFilter extends ActiveFilterImpl<AsciiCharacter, Word> {
 	
 	private static enum Parser {
 		BEGIN, WORD, SPACE, WORD_DOT, MARKER_END_NEXT, MARKER_NEXT, NEWLINE
@@ -31,11 +24,6 @@ public class WordFilter extends FilterImpl implements PushIntFilter, PullTextBlo
 	
 	
 	private Word m_word;
-	
-	private IntPipe m_source;
-	private TextBlockPipe m_sink;
-	
-	private AsciiTable m_table;
 	
 	private char m_curCharacter;
 	private AsciiType m_curType;
@@ -48,7 +36,6 @@ public class WordFilter extends FilterImpl implements PushIntFilter, PullTextBlo
 		
 		m_nextParser = Parser.BEGIN;
 		
-		m_table = AsciiTable.getInstance();
 		m_list = new LinkedList<Word>();
 		
 		resetWord();
@@ -57,79 +44,19 @@ public class WordFilter extends FilterImpl implements PushIntFilter, PullTextBlo
 	
 	
 	@Override
-	public void setSink(Pipe sink) {
-		super.setSink(sink);
-		m_sink = (TextBlockPipe) sink;
-	}
-	
-	@Override
-	public void setSource(Pipe source) {
-		super.setSource(source);
-		m_source = (IntPipe) source;
-	}
-	
-	
-	
-	@Override
-	public void write(int character) {
-		addCharacter(character);
-		writeWord();
-	}
-	
-
-	/* (non-Javadoc)
-	 * @see at.fhv.itb06.sem5.SA.ex02.pipesFilters.Component#flush()
-	 */
-	@Override
-	public void flush() {
-		if( m_word != null ) {
-			wordComplete();
-			writeWord();
-		}
-		m_sink.flush();
-	}
-
-	/* (non-Javadoc)
-	 * @see at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PullTextBlockFilter#read()
-	 */
-	@Override
-	public TextBlock read() {
-		if( m_list.isEmpty() ) {
-			int character = 0;
-			while( m_list.isEmpty() && character != EOS ) {
-				character = m_source.read();
-				if( character != EOS ) {
-					addCharacter(character);
-				}
-			}
-			
-			if( character == EOS ) {
-				wordComplete();
-				if( m_list.isEmpty() ) {
-					return null;
-				}
-			}
-		}
-		
-		TextBlock lb = m_list.iterator().next();
-		m_list.remove(lb);
-		return lb;
-	}
-	
-	private void writeWord() {
-		while( !m_list.isEmpty() ) {
-			TextBlock tb = m_list.iterator().next();
-			m_sink.write(tb);
-			m_list.remove(tb);
-		}
-	}
-	
-	private void addCharacter(int character) {
-		m_curType = m_table.getType(character);
-		m_curCharacter = (char) character;
+	protected void addInputValue(AsciiCharacter newValue) {
+		m_curType = newValue.getType();
+		m_curCharacter = newValue.getAsciiValue();
 		
 		selectParser();
 	}
+	
+	@Override
+	protected void flushInternalToOutBuffer() {
+		wordComplete();
+	}
+	
+	
 	
 	private void resetWord() {
 		m_word = null;
