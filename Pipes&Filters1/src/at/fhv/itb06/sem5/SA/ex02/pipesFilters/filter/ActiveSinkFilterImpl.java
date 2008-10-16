@@ -4,13 +4,13 @@
 package at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter;
 
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.DataElement;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.ActiveSink;
+import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.ActiveFilter;
 
 /**
  *
  * @author AS
  */
-public abstract class ActiveSinkFilterImpl<T extends DataElement> extends PassiveSinkFilterImpl<T> implements ActiveSink {
+public abstract class ActiveSinkFilterImpl<T extends DataElement> extends PassiveSinkFilterImpl<T> implements ActiveFilter {
 	
 	private boolean m_oldWriteable;
 	
