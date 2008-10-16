@@ -12,17 +12,16 @@ import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.ActiveFilter;
  */
 public abstract class ActiveSinkFilterImpl<T extends DataElement> extends PassiveSinkFilterImpl<T> implements ActiveFilter {
 	
-	private boolean m_oldWriteable;
+	private boolean m_isActive;
 	
 	public ActiveSinkFilterImpl() {
-		m_oldWriteable = false;
+		m_isActive = false;
 	}
 	
 	@Override
 	public void run() {
 		T curValue = null;
-		m_oldWriteable = m_writeable;
-		m_writeable = false;
+		m_isActive = true;
 		
 		// while we can read ourself, send data to sink
 		do {
@@ -36,7 +35,25 @@ public abstract class ActiveSinkFilterImpl<T extends DataElement> extends Passiv
 		// no more data are available
 		flushInternal();
 		
-		m_writeable = m_oldWriteable;
+		m_isActive = false;
+	}
+	
+	@Override
+	public void flush() {
+		checkRight();
+		super.flush();
+	}
+	
+	@Override
+	public void write(T data) {
+		checkRight();
+		super.write(data);
 	}
 
+	private void checkRight() {
+		if( m_isActive ) {
+			throw new UnsupportedOperationException("This method is temporarly deactivated.");
+		}
+	}
+	
 }

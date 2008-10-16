@@ -12,25 +12,21 @@ import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.ActiveFilter;
  */
 public abstract class ActiveSourceFilterImpl<T extends DataElement> extends PassiveSourceFilterImpl<T> implements ActiveFilter {
 
-	private boolean m_oldReadable;
+	private boolean m_isActive;
 	
 	public ActiveSourceFilterImpl() {
-		m_oldReadable = false;
+		m_isActive = false;
 	}
 	
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
 	@Override
 	public void run() {
 		T curValue = null;
-		m_oldReadable = m_readable;
-		m_readable = false;
+		m_isActive = true;
 		
 		// while we can read, send data to sink
 		do {
-			curValue = readNext();
+			curValue = super.read();
 			
 			if( curValue != null ) {
 				m_sink.write(curValue);
@@ -40,7 +36,19 @@ public abstract class ActiveSourceFilterImpl<T extends DataElement> extends Pass
 		// no data are available. flush the pipeline
 		m_sink.flush();
 		
-		m_readable = m_oldReadable;
+		m_isActive = false;
+	}
+	
+	@Override
+	public T read() {
+		checkRight();
+		return super.read();
+	}
+	
+	private void checkRight() {
+		if( m_isActive ) {
+			throw new UnsupportedOperationException("This method is temporarly deactivated.");
+		}
 	}
 
 }

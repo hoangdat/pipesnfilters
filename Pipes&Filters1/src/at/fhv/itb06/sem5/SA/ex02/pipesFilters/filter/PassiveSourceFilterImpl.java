@@ -15,11 +15,9 @@ import at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipe;
 public abstract class PassiveSourceFilterImpl<T extends DataElement> implements PassiveSource<T> {
 
 	protected Pipe<T> m_sink;
-	protected boolean m_readable;
 	
 	public PassiveSourceFilterImpl() {
 		m_sink = null;
-		m_readable = true;
 	}
 
 	@Override
@@ -34,11 +32,7 @@ public abstract class PassiveSourceFilterImpl<T extends DataElement> implements 
 	
 	@Override
 	public T read() {
-		if( m_readable ) {
-			return readNext();
-		} else {
-			throw new UnsupportedOperationException("This method is temporarly deactivated.");
-		}
+		return readNext();
 	}
 	
 	/**
