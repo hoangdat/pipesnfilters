@@ -104,7 +104,7 @@ public abstract class PassiveFilterImpl<T1 extends DataElement, T2 extends DataE
 	}
 	
 	@Override
-	public void flush() throws IOException {
+	public void flush() {
 		// flush all internal caches to the outBuffer
 		flushInternalToOutBuffer();
 		
