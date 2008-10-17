@@ -3,9 +3,12 @@
  */
 package at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe;
 
+import java.io.Flushable;
+import java.io.IOException;
 import java.util.LinkedList;
 
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.Component;
+import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.DataElement;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PullFilter;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PushFilter;
 
@@ -14,7 +17,7 @@ import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PushFilter;
  * 
  * @author AS
  */
-public class Pipe<T> implements Component {
+public class Pipe<T extends DataElement> implements Component, Flushable {
 	
 	protected PullFilter<T> m_source;
 	protected PushFilter<T> m_sink;
@@ -63,7 +66,7 @@ public class Pipe<T> implements Component {
 	 * @see at.fhv.itb06.sem5.SA.ex02.pipesFilters.Component#flush()
 	 */
 	@Override
-	public void flush() {
+	public void flush() throws IOException {
 		m_sink.flush();
 	}
 
