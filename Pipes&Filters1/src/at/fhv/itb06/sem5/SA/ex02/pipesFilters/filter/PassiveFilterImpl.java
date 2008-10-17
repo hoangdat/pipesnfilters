@@ -3,6 +3,7 @@
  */
 package at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -103,7 +104,7 @@ public abstract class PassiveFilterImpl<T1 extends DataElement, T2 extends DataE
 	}
 	
 	@Override
-	public void flush() {
+	public void flush() throws IOException {
 		// flush all internal caches to the outBuffer
 		flushInternalToOutBuffer();
 		

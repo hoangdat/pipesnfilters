@@ -6,6 +6,7 @@ package at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe;
 import java.io.Flushable;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.Component;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.DataElement;
@@ -23,7 +24,7 @@ public class Pipe<T extends DataElement> implements Component, Flushable {
 	protected PushFilter<T> m_sink;
 	private boolean m_buffered;
 	
-	private LinkedList<T> m_buffer;
+	private LinkedBlockingQueue<T> m_buffer;
 	
 	public Pipe() {
 		this(false);
@@ -33,7 +34,9 @@ public class Pipe<T extends DataElement> implements Component, Flushable {
 		m_buffered = isBuffered;
 		m_source = null;
 		m_sink = null;
-		m_buffer = new LinkedList<T>();
+		if (m_buffered) {
+			m_buffer = new LinkedBlockingQueue<T>();
+		}
 	}
 	
 	/* (non-Javadoc)
