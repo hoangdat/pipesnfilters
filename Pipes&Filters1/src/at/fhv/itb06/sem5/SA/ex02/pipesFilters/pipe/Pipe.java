@@ -69,8 +69,12 @@ public class Pipe<T extends DataElement> implements Component, Flushable {
 	 * @see at.fhv.itb06.sem5.SA.ex02.pipesFilters.Component#flush()
 	 */
 	@Override
-	public void flush() throws IOException {
-		m_sink.flush();
+	public void flush() {
+		try {
+			m_sink.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
