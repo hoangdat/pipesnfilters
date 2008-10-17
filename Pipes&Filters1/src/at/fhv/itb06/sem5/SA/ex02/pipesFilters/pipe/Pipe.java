@@ -5,7 +5,6 @@ package at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe;
 
 import java.io.Flushable;
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.Component;
