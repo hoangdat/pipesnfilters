@@ -3,12 +3,13 @@
  */
 package at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.DataElement;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PullFilter;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PushFilter;
+import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.Pullable;
+import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.Pushable;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipe;
 
 /**
@@ -21,17 +22,19 @@ import at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipe;
  * Pipe ----T1---- Filter ----T2---- Pipe
  */
 public abstract class PassiveFilterImpl<T1 extends DataElement, T2 extends DataElement>
-		implements PullFilter<T2>, PushFilter<T1> {
+		implements Pullable<T2>, Pushable<T1> {
 	
 	protected Pipe<T1> m_source;
 	protected Pipe<T2> m_sink;
 	protected List<T2> m_outBuffer;
+	protected boolean m_flushing;
 	
 	
 	protected PassiveFilterImpl() {
 		m_source = null;
 		m_sink = null;
 		m_outBuffer = new LinkedList<T2>();
+		m_flushing = false;
 	}
 	
 	
@@ -72,18 +75,23 @@ public abstract class PassiveFilterImpl<T1 extends DataElement, T2 extends DataE
 		if( m_outBuffer.isEmpty() ) {
 			T1 newValue = null;
 			
-			// read data form the source
-			do {
-				newValue = m_source.read();
-				if( newValue != null ) {
-					addInputValue(newValue);
-				}
-			} while( m_outBuffer.isEmpty() && newValue != null );
-			
+			// if flushing is true, we read flush before
+			// therefore we should not read the source again.
+			if( !m_flushing ) {
+				// read data form the source
+				do {
+					newValue = m_source.read();
+					if( newValue != null ) {
+						addInputValue(newValue);
+					}
+				} while( m_outBuffer.isEmpty() && newValue != null );
+			}
 			if( newValue == null ) {
+				m_flushing = true;
 				// the source does not have more data --> flush
 				flushInternalToOutBuffer();
 				if( m_outBuffer.isEmpty() ) {
+					m_flushing = false;
 					return null;
 				}
 			}
@@ -103,7 +111,7 @@ public abstract class PassiveFilterImpl<T1 extends DataElement, T2 extends DataE
 	}
 	
 	@Override
-	public void flush() {
+	public void flush() throws IOException {
 		// flush all internal caches to the outBuffer
 		flushInternalToOutBuffer();
 		

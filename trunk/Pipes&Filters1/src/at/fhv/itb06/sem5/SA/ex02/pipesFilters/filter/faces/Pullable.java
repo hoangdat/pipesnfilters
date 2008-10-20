@@ -3,8 +3,6 @@
  */
 package at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces;
 
-import java.io.Flushable;
-
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.DataElement;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipe;
 
@@ -12,13 +10,14 @@ import at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipe;
  * @author AS
  * 
  * 
- * Pipe ----T---- Filter
+ *  Filter  ----T---- Pipe
  * 
  */
-public interface PushFilter<T extends DataElement> extends Filter, Flushable {
+public interface Pullable<T extends DataElement> extends Filter {
 	
-	public Pipe<T> getSource();
-	public void setSource(Pipe<T> source);
+	public Pipe<T> getSink();
+	public void setSink(Pipe<T> sink);
 	
-	public void write(T data);
+	public T read();
+	
 }

@@ -9,7 +9,6 @@ import java.util.HashMap;
 
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.Pipeline;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.AsciiCharacter;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.DataElement;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.LayoutBlock;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.TextBlock;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.FileReaderFilter;
