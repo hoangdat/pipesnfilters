@@ -3,6 +3,8 @@
  */
 package at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter;
 
+import java.io.IOException;
+
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.DataElement;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.ActiveFilter;
 
@@ -34,7 +36,11 @@ public abstract class ActiveSourceFilterImpl<T extends DataElement> extends Pass
 		} while( curValue != null );
 		
 		// no data are available. flush the pipeline
-		m_sink.flush();
+		try {
+			m_sink.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		m_isActive = false;
 	}

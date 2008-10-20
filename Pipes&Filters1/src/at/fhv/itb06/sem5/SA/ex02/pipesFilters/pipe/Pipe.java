@@ -9,8 +9,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.Component;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.DataElement;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PullFilter;
-import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PushFilter;
+import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.Pullable;
+import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.Pushable;
 
 
 /**
@@ -19,11 +19,12 @@ import at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PushFilter;
  */
 public class Pipe<T extends DataElement> implements Component, Flushable {
 	
-	protected PullFilter<T> m_source;
-	protected PushFilter<T> m_sink;
+	protected Pullable<T> m_source;
+	protected Pushable<T> m_sink;
 	private boolean m_buffered;
+	private DataElement m_EOS;
 	
-	private LinkedBlockingQueue<T> m_buffer;
+	private LinkedBlockingQueue<DataElement> m_buffer;
 	
 	public Pipe() {
 		this(false);
@@ -33,47 +34,30 @@ public class Pipe<T extends DataElement> implements Component, Flushable {
 		m_buffered = isBuffered;
 		m_source = null;
 		m_sink = null;
-		if (m_buffered) {
-			m_buffer = new LinkedBlockingQueue<T>();
-		}
+		m_buffer = new LinkedBlockingQueue<DataElement>();
+		
+		m_EOS = new DataElement() {
+			@Override
+			public DataElement getFirst() {return null;}
+			@Override
+			public void insertBefore(DataElement element, DataElement newElement) {}
+			@Override
+			public String toString() {return null;}
+		};
 	}
 	
-	/* (non-Javadoc)
-	 * @see at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipea#getSink()
-	 */
-	public PushFilter<T> getSink() {
+	public Pushable<T> getSink() {
 		return m_sink;
 	}
-	/* (non-Javadoc)
-	 * @see at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipea#setSink(at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PushFilter)
-	 */
-	public void setSink(PushFilter<T> sink) {
+	public void setSink(Pushable<T> sink) {
 		m_sink = sink;
 	}
 	
-	/* (non-Javadoc)
-	 * @see at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipea#getSource()
-	 */
-	public PullFilter<T> getSource() {
+	public Pullable<T> getSource() {
 		return m_source;
 	}
-	/* (non-Javadoc)
-	 * @see at.fhv.itb06.sem5.SA.ex02.pipesFilters.pipe.Pipea#setSource(at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter.faces.PullFilter)
-	 */
-	public void setSource(PullFilter<T> source) {
+	public void setSource(Pullable<T> source) {
 		m_source = source;
-	}
-
-	/* (non-Javadoc)
-	 * @see at.fhv.itb06.sem5.SA.ex02.pipesFilters.Component#flush()
-	 */
-	@Override
-	public void flush() {
-		try {
-			m_sink.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	/**
@@ -92,16 +76,44 @@ public class Pipe<T extends DataElement> implements Component, Flushable {
 	
 	public void write(T data) {
 		if (m_buffered) {
-			m_buffer.add(data);
+			try {
+				m_buffer.put(data);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		} else {
 			m_sink.write(data);
+		}
+	}
+	
+	@Override
+	public void flush() throws IOException {
+		if( m_buffered ) {
+			try {
+				m_buffer.put(m_EOS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		} else {
+			m_sink.flush();
 		}
 	}
 	
 	public T read() {
 		T result = null;
 		if (m_buffered) {
-			result = m_buffer.remove();
+			DataElement el = null;
+			try {
+				el = m_buffer.take();
+				if( el != m_EOS ) {
+					result = (T) el;
+				} else {
+					result = null;
+				}
+				
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		} else {
 			result = m_source.read();
 		}
