@@ -61,7 +61,7 @@ public class LineFilter extends ActiveFilterImpl<TextBlock, LineLayout> {
 	protected void addInputValue(TextBlock newValue) {
 		
 		// if the given textBlock contains a newline value, we have to handle
-		// this seperatly.
+		// this sepperatly.
 		if( newValue.containsType(AsciiType.NEWLINE) ) {
 			TextBlock[] blocks = newValue.splitByAsciiType(AsciiType.NEWLINE);
 			for( int i = 0; i < blocks.length; i++ ) {
