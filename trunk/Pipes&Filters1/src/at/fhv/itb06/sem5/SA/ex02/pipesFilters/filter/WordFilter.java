@@ -3,9 +3,6 @@
  */
 package at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.AsciiTable;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.AsciiTable.AsciiType;
 import at.fhv.itb06.sem5.SA.ex02.pipesFilters.data.AsciiCharacter;
@@ -28,15 +25,12 @@ public class WordFilter extends ActiveFilterImpl<AsciiCharacter, Word> {
 	private char m_curCharacter;
 	private AsciiType m_curType;
 	private Parser m_nextParser;
-	private List<Word> m_list;
 	
 	
 	public WordFilter() {
 		super();
 		
 		m_nextParser = Parser.BEGIN;
-		
-		m_list = new LinkedList<Word>();
 		
 		resetWord();
 	}
@@ -68,7 +62,7 @@ public class WordFilter extends ActiveFilterImpl<AsciiCharacter, Word> {
 	
 	private void wordComplete() {
 		if( m_word != null ) {
-			m_list.add(m_word);
+			m_outBuffer.add(m_word);
 		}
 		resetWord();
 	}

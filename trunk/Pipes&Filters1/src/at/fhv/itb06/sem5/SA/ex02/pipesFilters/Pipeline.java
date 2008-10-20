@@ -21,8 +21,14 @@ public class Pipeline {
 		((Pipe<DataElement>) pipe).setSource((PullFilter<DataElement>) source);
 		((Pipe<DataElement>) pipe).setSink((PushFilter<DataElement>) sink);
 		
-		((Pipe<DataElement>) source).setSink((PushFilter<DataElement>) pipe);
-		((Pipe<DataElement>) sink).setSource((PullFilter<DataElement>) pipe);
+		//if( source instanceof PullFilter ) {
+			System.out.println(source);
+			((PullFilter<DataElement>) source).setSink((Pipe<DataElement>) pipe);
+		//}
+		//if( sink instanceof PushFilter ) {
+			System.out.println(sink);
+			((PushFilter<DataElement>) sink).setSource((Pipe<DataElement>) pipe);
+		//}
 	}
 	
 	

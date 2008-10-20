@@ -65,8 +65,8 @@ public abstract class ActiveFilterImpl<T1 extends DataElement, T2 extends DataEl
 	}
 
 	protected void checkRight() {
-		if( !m_isActive ) {
-			throw new UnsupportedOperationException("This method is temporary deactivated.");
+		if( m_isActive ) {
+			throw new UnsupportedOperationException("This method is temporary deactivated." + this.toString());
 		}
 	}
 	
