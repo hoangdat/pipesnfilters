@@ -3,7 +3,6 @@
  */
 package at.fhv.itb06.sem5.SA.ex02.pipesFilters.filter;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
